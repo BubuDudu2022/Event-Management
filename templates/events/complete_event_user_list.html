@@ -1,44 +1,60 @@
 {% extends 'base/base.html' %}
-{% block title %}Complete Event User List{% endblock title %}
-{% block breadcrumb %}Complete Event User List{% endblock breadcrumb %}
+{% block title %}Event Member Status List{% endblock %}
+{% block breadcrumb %}Event Member Status List{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-md-10">
-                            <h5>Complete Event User List</h5>
-                        </div>
-                        <div class="col-md-2">
-                            <a class="btn btn-success" href="{% url 'event-create' %}">Create Event</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
-                        <thead>                  
-                          <tr>
-                            <th style="width: 10px">#</th>
-                            <th>User</th>
-                            <th>Event</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            {% for completeuser in completeuser %}
-                                <tr role="row">
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="card">
+            <div class="card-header">
+                <h5>Event Member Status List</h5>
+            </div>
+
+            <div class="card-body">
+
+                <p>{{ members|length }} Members Loaded</p>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>User Name</th>
+                            <th>Event Name</th>
+                            <th>Attend Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% if members %}
+                            {% for item in members %}
+                                <tr>
                                     <td>{{ forloop.counter }}</td>
-                                    <td>{{ completeuser.user }}</td>
-                                    <td>{{ completeuser.event }}</td>
-                                    <td>{{ completeuser.status }}</td>
+                                    <td>{{ item.user.get_full_name|default:item.user.username }}</td>
+                                    <td>{{ item.event.name }}</td>
+
+                                    <td>
+                                        <span class="badge badge-info">
+                                            {{ item.attend_status }}
+                                        </span>
+                                    </td>
                                 </tr>
                             {% endfor %}
-                        </tbody>
-                      </table>
-                </div>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-danger">
+                                    No Records Found
+                                </td>
+                            </tr>
+                        {% endif %}
+
+                    </tbody>
+                </table>
+
             </div>
         </div>
+
     </div>
-{% endblock content %}
+</div>
+{% endblock %}

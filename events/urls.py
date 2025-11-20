@@ -19,12 +19,17 @@ from .views import (
     UpdateEventStatusView,
     CompleteEventList,
     AbsenseUserList,
-    CompleteEventUserList,
     CreateUserMark,
     UserMarkList,
     search_event_category,
     search_event,
     create_event,
+    UserEventListView, 
+    UserEventDetailView, 
+    join_event_ajax, 
+    unjoin_event_ajax,
+    EventHistoryView,
+    EventMemberStatusListView
 )
 
 urlpatterns = [
@@ -46,10 +51,16 @@ urlpatterns = [
     path('update-status/<int:pk>/event/', UpdateEventStatusView.as_view(), name='update-event-status'),
     path('complete-event/', CompleteEventList.as_view(), name='complete-event'),
     path('absense-user/', AbsenseUserList.as_view(), name='absense-user'),
-    path('complete-event-user/', CompleteEventUserList.as_view(), name='complete-event-user'),
     path('create-user-mark/', CreateUserMark.as_view(), name='create-user-mark'),
     path('user-mark/', UserMarkList.as_view(), name='user-mark'),
     path('search_category/', search_event_category, name='search-event-category'),
     path('search_event/', search_event, name='search-event'),
     path('create/', create_event, name='create'),
+    path('', UserEventListView.as_view(), name='user-event-list'),
+    path('event/<int:pk>/', UserEventDetailView.as_view(), name='user-event-detail'),
+    path('event/<int:pk>/join/', join_event_ajax, name='join-event-ajax'),
+    path('event/<int:pk>/unjoin/', unjoin_event_ajax, name='unjoin-event-ajax'),
+    path('history/', EventHistoryView.as_view(), name='event-history'),
+    path('complete-event-user/',EventMemberStatusListView.as_view(),name='complete-event-user')
+
 ]
