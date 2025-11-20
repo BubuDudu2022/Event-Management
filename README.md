@@ -14,7 +14,7 @@
 ![event-management](https://user-images.githubusercontent.com/39632170/88448650-d641af80-ce61-11ea-85e1-dc256d1e8155.png)
 
 
-Run the Project : python manage.py runserver
-User View : http://127.0.0.1:8000/events/
-Admin View : http://127.0.0.1:8000/admin-panel/
+Run the Project : python manage.py runserver || 
+User View : http://127.0.0.1:8000/events/  || 
+Admin View : http://127.0.0.1:8000/admin-panel/  || 
 Eda user in User View vazhi keri create cheyyan pattum and admin ne as same as before, Complete Event User ill event name and member registerd kanam ttoh 
