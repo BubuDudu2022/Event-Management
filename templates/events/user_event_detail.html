@@ -5,17 +5,6 @@
   <title>{{ event.name }}</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <style>
-    /* Fix dropdown disappearing issue */
-    .dropdown-menu {
-      display: none;
-    }
-
-    .group:hover .dropdown-menu,
-    .dropdown-menu:hover {
-      display: block;
-    }
-  </style>
 </head>
 
 <body class="bg-gray-50">
@@ -25,20 +14,19 @@
     <h2 class="text-2xl font-bold text-blue-700">Event Management</h2>
 
     {% if user.is_authenticated %}
-    <div class="relative group cursor-pointer">
-      <button class="flex items-center space-x-3">
-        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-lg">
-          {{ user.first_name|default:user.username|first|upper }}
-        </div>
-        <span class="text-gray-800 font-medium">{{ user.first_name|default:user.username }}</span>
-      </button>
+                <div class="relative group">
+                    <button class="flex items-center space-x-3 cursor-pointer">
+                        <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-lg">
+                            {{ user.first_name|default:user.username|first|upper }}
+                        </div>
+                        <span class="text-gray-800 font-medium">{{ user.first_name|default:user.username }}</span>
+                    </button>
 
-      <!-- ⭐ FIXED DROPDOWN -->
-      <div class="dropdown-menu absolute right-0 bg-white shadow-lg rounded-lg w-40 mt-2 z-50 transition-all">
-        <a href="{% url 'event-history' %}" class="block px-4 py-2 hover:bg-gray-100 transition">History</a>
-        <a href="{% url 'logout-ajax' %}" class="block px-4 py-2 hover:bg-gray-100 text-red-600 transition">Logout</a>
-      </div>
-    </div>
+                    <div class="absolute right-0 bg-white shadow-lg rounded-lg w-40 mt-2 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-auto">
+                        <a href="{% url 'event-history' %}" class="block px-4 py-2 hover:bg-gray-100">History</a>
+                        <a href="{% url 'logout-ajax' %}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
+                    </div>
+                </div>
 
     {% else %}
     <button id="open-auth"
