@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,23 +14,28 @@
             transform: translateY(-6px);
             transition: 0.3s ease;
         }
+
         .hero-bg {
             background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        }
+
+        .dropdown-container:hover .dropdown-menu {
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
 
 <body class="bg-gray-50">
 
-    <!-- TOP BAR WITH USER INFO -->
+    <!-- TOP BAR -->
     <div class="bg-white shadow-sm py-4">
         <div class="mx-auto px-6 flex justify-between items-center">
 
             <h2 class="text-2xl font-bold text-black-700">Event Management</h2>
 
             {% if user.is_authenticated %}
-            <!-- USER DROPDOWN -->
-            <div class="relative group">
+            <div class="relative dropdown-container">
                 <button class="flex items-center space-x-3 cursor-pointer">
                     <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-lg">
                         {{ user.first_name|default:user.username|first|upper }}
@@ -36,14 +43,13 @@
                     <span class="text-gray-800 font-medium">{{ user.first_name|default:user.username }}</span>
                 </button>
 
-                <div class="absolute right-0 hidden group-hover:block bg-white shadow-lg rounded-lg w-40 mt-2">
+                <div class="dropdown-menu absolute right-0 opacity-0 pointer-events-none bg-white shadow-lg rounded-lg w-40 mt-2 transition-all duration-200">
                     <a href="{% url 'event-history' %}" class="block px-4 py-2 hover:bg-gray-100">History</a>
                     <a href="{% url 'logout-ajax' %}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
                 </div>
             </div>
 
             {% else %}
-            <!-- LOGIN/REGISTER BUTTON -->
             <button id="open-auth"
                     class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow">
                 Login / Register
@@ -52,53 +58,39 @@
         </div>
     </div>
 
-    <!-- HERO HEADER -->
+    <!-- HERO -->
     <div class="hero-bg text-white py-14 shadow-lg">
         <div class="max-w-6xl mx-auto px-6 text-center">
             <h1 class="text-4xl font-extrabold tracking-wide">Upcoming Events</h1>
-            <p class="text-blue-100 mt-2 text-lg">
-                Discover the latest events happening near you
-            </p>
+            <p class="text-blue-100 mt-2 text-lg">Discover the latest events happening near you</p>
         </div>
     </div>
 
-    <!-- MAIN SECTION -->
+    <!-- CONTENT -->
     <div class="max-w-7xl mx-auto px-6 py-12">
 
         {% if not events %}
             <p class="text-center text-gray-500 text-xl mt-10">No events found.</p>
         {% endif %}
 
-        <!-- GRID -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
 
             {% for event in events %}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden event-card border border-gray-100">
 
-                <!-- IMAGE -->
-                {% with img=event.eventimage_set.first %}
-                    {% if img %}
-                        <img src="{{ img.image.url }}" class="h-52 w-full object-cover">
-                    {% else %}
-                        <img src="https://via.placeholder.com/400x300?text=No+Image"
-                             class="h-52 w-full object-cover">
-                    {% endif %}
-                {% endwith %}
+                <!-- FIXED IMAGE LOGIC -->
+                {% if event.image and event.image.image %}
+                    <img src="{{ event.image.image.url }}" alt="{{ event.name }}" class="h-52 w-full object-cover">
+                {% else %}
+                    <img src="https://via.placeholder.com/400x300?text=No+Image" class="h-52 w-full object-cover">
+                {% endif %}
 
                 <div class="p-5">
                     <h3 class="text-xl font-bold text-gray-900">{{ event.name }}</h3>
+                    <p class="text-sm text-blue-700 font-medium mt-1">{{ event.category.name }}</p>
+                    <p class="text-gray-600 mt-1 text-sm">📅 {{ event.start_date }}</p>
 
-                    <p class="text-sm text-blue-700 font-medium mt-1">
-                        {{ event.category.name }}
-                    </p>
-
-                    <p class="text-gray-600 mt-1 text-sm">
-                        📅 Start Date: {{ event.start_date }}
-                    </p>
-
-                    <p class="mt-3 text-gray-700 text-sm">
-                        {{ event.description|striptags|truncatewords:20 }}
-                    </p>
+                    <p class="mt-3 text-gray-700 text-sm">{{ event.description|striptags|truncatewords:20 }}</p>
 
                     <a href="{% url 'user-event-detail' pk=event.id %}"
                        class="mt-4 inline-block w-full text-center bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
@@ -112,153 +104,9 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="bg-gray-900 text-white py-6 mt-16">
-        <div class="max-w-6xl mx-auto px-6 text-center text-gray-300">
-            © {{ now|date:"Y" }} Event Management · All Rights Reserved
-        </div>
+    <footer class="bg-gray-900 text-white py-6 mt-16 text-center text-gray-300">
+        © {{ now|date:"Y" }} Event Management · All Rights Reserved
     </footer>
-
-
-    <!-- AUTH MODAL (Same as detail page) -->
-    <div id="auth-modal"
-         class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-
-        <div class="bg-white rounded-xl w-96 p-6 shadow-xl relative">
-
-            <button id="auth-close" class="absolute top-3 right-3 text-gray-600 hover:text-black">✖</button>
-
-            <h3 class="text-2xl font-bold mb-4 text-center">Login / Register</h3>
-
-            <div class="flex mb-4 border-b">
-                <button class="auth-tab flex-1 py-2 active border-b-2 border-indigo-600 text-indigo-600 font-semibold"
-                        data-target="#login-form">Login</button>
-
-                <button class="auth-tab flex-1 py-2 text-gray-500"
-                        data-target="#register-form">Register</button>
-            </div>
-
-            <div id="auth-forms">
-
-                <!-- LOGIN FORM -->
-                <form id="login-form" method="post">
-                    {% csrf_token %}
-                    <input name="username" placeholder="Email / Username"
-                           class="w-full p-3 mb-3 border rounded-lg" />
-
-                    <input type="password" name="password" placeholder="Password"
-                           class="w-full p-3 mb-3 border rounded-lg" />
-
-                    <button class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
-                        Login
-                    </button>
-                </form>
-
-                <!-- REGISTER FORM -->
-                <form id="register-form" method="post" style="display:none;">
-                    {% csrf_token %}
-                    <input name="name" placeholder="Full Name"
-                           class="w-full p-3 mb-3 border rounded-lg" />
-
-                    <input name="email" type="email" placeholder="Email"
-                           class="w-full p-3 mb-3 border rounded-lg" />
-
-                    <input name="password1" type="password" placeholder="Password"
-                           class="w-full p-3 mb-3 border rounded-lg" />
-
-                    <input name="password2" type="password" placeholder="Confirm Password"
-                           class="w-full p-3 mb-3 border rounded-lg" />
-
-                    <button class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
-                        Register
-                    </button>
-                </form>
-
-            </div>
-        </div>
-    </div>
-
-
-    <!-- JS -->
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-
-            const openAuthBtn = document.getElementById("open-auth");
-            const authModal = document.getElementById("auth-modal");
-            const authClose = document.getElementById("auth-close");
-            const authTabs = document.querySelectorAll(".auth-tab");
-
-            function openAuthModal() {
-                authModal.classList.remove("hidden");
-                authModal.style.display = "flex";
-            }
-
-            function closeAuthModal() {
-                authModal.classList.add("hidden");
-                authModal.style.display = "none";
-            }
-
-            if (openAuthBtn) {
-                openAuthBtn.onclick = openAuthModal;
-            }
-
-            authClose.onclick = closeAuthModal;
-
-            /* TAB SWITCH */
-            authTabs.forEach(tab => {
-                tab.onclick = () => {
-                    authTabs.forEach(t => t.classList.remove("active","border-indigo-600","text-indigo-600"));
-                    tab.classList.add("active","border-indigo-600","text-indigo-600");
-
-                    document.querySelectorAll("#auth-forms form").forEach(f => f.style.display = "none");
-                    document.querySelector(tab.dataset.target).style.display = "block";
-                };
-            });
-
-            /* AJAX LOGIN */
-            document.getElementById("login-form").onsubmit = async function(e) {
-                e.preventDefault();
-
-                const form = new FormData(this);
-
-                const response = await fetch("{% url 'login-ajax' %}", {
-                    method: "POST",
-                    body: form,
-                    headers: { "X-Requested-With": "XMLHttpRequest" }
-                });
-
-                const data = await response.json();
-
-                if (data.status === "success") {
-                    location.reload();
-                } else {
-                    alert(data.message);
-                }
-            };
-
-            /* AJAX REGISTER */
-            document.getElementById("register-form").onsubmit = async function(e) {
-                e.preventDefault();
-
-                const form = new FormData(this);
-
-                const response = await fetch("{% url 'register' %}", {
-                    method: "POST",
-                    body: form,
-                    headers: { "X-Requested-With": "XMLHttpRequest" }
-                });
-
-                const data = await response.json();
-
-                if (data.status === "success") {
-                    location.reload();
-                } else {
-                    alert(data.message);
-                }
-            };
-
-        });
-    </script>
 
 </body>
 </html>
