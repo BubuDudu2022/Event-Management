@@ -14,14 +14,8 @@
             transform: translateY(-6px);
             transition: 1s ease;
         }
-
         .hero-bg {
             background: linear-gradient(135deg, #2563eb, #1e3a8a);
-        }
-
-        .dropdown-container:hover .dropdown-menu {
-            opacity: 1;
-            pointer-events: auto;
         }
     </style>
 </head>
@@ -32,7 +26,7 @@
     <div class="bg-white shadow-sm py-4">
         <div class="mx-auto px-6 flex justify-between items-center">
 
-            <h2 class="text-2xl font-bold text-black-700">Event Management</h2>
+            <h2 class="text-2xl font-bold text-blue-700">Event Management</h2>
 
             {% if user.is_authenticated %}
                 <div class="relative group">
@@ -48,11 +42,12 @@
                         <a href="{% url 'logout-ajax' %}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
                     </div>
                 </div>
+
             {% else %}
-            <button id="open-auth"
-                    class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow">
-                Login / Register
-            </button>
+                <button id="open-auth"
+                        class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow">
+                    Login / Register
+                </button>
             {% endif %}
         </div>
     </div>
@@ -77,7 +72,6 @@
             {% for event in events %}
             <div class="bg-white shadow-xl rounded-2xl overflow-hidden event-card border border-gray-100">
 
-                <!-- FIXED IMAGE LOGIC -->
                 {% if event.image and event.image.image %}
                     <img src="{{ event.image.image.url }}" alt="{{ event.name }}" class="h-52 w-full object-cover">
                 {% else %}
@@ -106,6 +100,131 @@
     <footer class="bg-gray-900 text-white py-6 mt-16 text-center text-gray-300">
         © {{ now|date:"Y" }} Event Management · All Rights Reserved
     </footer>
+
+<!-- ===================== 🔥 LOGIN & REGISTER MODAL ===================== -->
+<div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <div class="bg-white rounded-xl w-96 p-6 shadow-xl">
+    <button id="auth-close" class="float-right text-gray-600 hover:text-black">✖</button>
+
+    <h3 class="text-2xl font-bold mb-4 text-center">Login / Register</h3>
+
+    <div class="flex mb-4 border-b">
+      <button class="auth-tab flex-1 py-2 active border-b-2 border-indigo-600 text-indigo-600 font-semibold"
+              data-target="#login-form">Login</button>
+
+      <button class="auth-tab flex-1 py-2 text-gray-500"
+              data-target="#register-form">Register</button>
+    </div>
+
+    <div id="auth-forms">
+
+      <!-- LOGIN FORM -->
+      <form id="login-form" method="post">
+        {% csrf_token %}
+        <input name="username" placeholder="Email / Username"
+               class="w-full p-3 mb-3 border rounded-lg" />
+        <input name="password" type="password" placeholder="Password"
+               class="w-full p-3 mb-3 border rounded-lg" />
+
+        <button class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
+          Login
+        </button>
+      </form>
+
+      <!-- REGISTER FORM -->
+      <form id="register-form" method="post" style="display:none;">
+        {% csrf_token %}
+        <input name="name" placeholder="Full Name" class="w-full p-3 mb-3 border rounded-lg" />
+        <input name="email" type="email" placeholder="Email" class="w-full p-3 mb-3 border rounded-lg" />
+        <input name="password1" type="password" placeholder="Password" class="w-full p-3 mb-3 border rounded-lg" />
+        <input name="password2" type="password" placeholder="Confirm Password" class="w-full p-3 mb-3 border rounded-lg" />
+
+        <button class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
+          Register
+        </button>
+      </form>
+
+    </div>
+  </div>
+</div>
+<!-- ================================================================ -->
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const authModal = document.getElementById("auth-modal");
+  const openAuthBtn = document.getElementById("open-auth");
+  const authClose = document.getElementById("auth-close");
+  const authTabs = document.querySelectorAll(".auth-tab");
+
+  /* OPEN / CLOSE MODAL */
+  function openAuthModal() {
+    authModal.classList.remove("hidden");
+    authModal.style.display = "flex";
+  }
+
+  function closeAuthModal() {
+    authModal.classList.add("hidden");
+    authModal.style.display = "none";
+  }
+
+  if (openAuthBtn) openAuthBtn.onclick = openAuthModal;
+  authClose.onclick = closeAuthModal;
+
+  /* TAB SWITCHING */
+  authTabs.forEach(tab => {
+    tab.onclick = () => {
+      authTabs.forEach(t => t.classList.remove("active", "border-indigo-600", "text-indigo-600"));
+      tab.classList.add("active", "border-indigo-600", "text-indigo-600");
+
+      document.querySelectorAll("#auth-forms form").forEach(f => f.style.display = "none");
+      document.querySelector(tab.dataset.target).style.display = "block";
+    };
+  });
+
+  /* AJAX LOGIN */
+  document.getElementById("login-form").onsubmit = async function(e) {
+    e.preventDefault();
+
+    const form = new FormData(this);
+    const response = await fetch("{% url 'login-ajax' %}", {
+      method: "POST",
+      body: form,
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+      closeAuthModal();
+      window.location.reload();
+    } else {
+      alert(data.message);
+    }
+  };
+
+  /* AJAX REGISTER */
+  document.getElementById("register-form").onsubmit = async function(e) {
+    e.preventDefault();
+
+    const form = new FormData(this);
+    const response = await fetch("{% url 'register' %}", {
+      method: "POST",
+      body: form,
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    });
+
+    const data = await response.json();
+
+    if (data.status === "success") {
+      closeAuthModal();
+      window.location.reload();
+    } else {
+      alert(data.message);
+    }
+  };
+
+});
+</script>
 
 </body>
 </html>
