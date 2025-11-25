@@ -22,9 +22,9 @@
         <a href="{% url 'event-category-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <!-- ./col -->
+
+    <!-- Events -->
     <div class="col-lg-3 col-6">
-      <!-- small box -->
       <div class="small-box bg-success">
         <div class="inner">
           {% if event %}
@@ -41,9 +41,9 @@
         <a href="{% url 'event-list' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <!-- ./col -->
+
+    <!-- Users -->
     <div class="col-lg-3 col-6">
-      <!-- small box -->
       <div class="small-box bg-warning">
         <div class="inner">
           {% if user %}
@@ -60,29 +60,31 @@
         <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
       </div>
     </div>
-    <!-- ./col -->
+
+    <!-- ✅ Expired Events (formerly Complete Event) -->
     <div class="col-lg-3 col-6">
-      <!-- small box -->
       <div class="small-box bg-danger">
         <div class="inner">
           {% if complete_event %}
             <h3>{{ complete_event }}</h3>
           {% else %}
-          <h3>0</h3>
+            <h3>0</h3>
           {% endif %}
 
-          <p>Complete Event</p>
+          <p>Expired Events</p>
         </div>
         <div class="icon">
           <i class="ion ion-pie-graph"></i>
         </div>
-        <a href="{% url 'complete-event' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+        <a href="{% url 'expired-events' %}" class="small-box-footer">
+          More info <i class="fas fa-arrow-circle-right"></i>
+        </a>
       </div>
     </div>
-    <!-- ./col -->
-  </div>
-  <!-- Event List -->
-  <div class="row">
+</div>
+
+<!-- Event List -->
+<div class="row">
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
@@ -92,6 +94,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="card-body">
                   <table class="table table-striped table-bordered datatable dataTable no-footer" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info" style="border-collapse: collapse !important">
                     <thead>
@@ -129,8 +132,8 @@
                                       <i class="fa fa-eye"></i>
                                   </a>
                                   <a class="btn btn-info" href="{% url 'event-edit' event.pk %}" title="edit">
-                                    <i class="fa fa-edit"></i>
-                                </a>
+                                      <i class="fa fa-edit"></i>
+                                  </a>
                                   <a class="btn btn-danger" href="{% url 'event-delete' event.pk %}" title="delete">
                                       <i class="fa fa-trash"></i>
                                   </a>

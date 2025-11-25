@@ -24,6 +24,43 @@ from .models import (
 
 )
 from .forms import EventForm, EventImageForm, EventAgendaForm, EventCreateMultiForm
+from django.utils import timezone
+from datetime import date
+
+def update_expired_events_status():
+    today = date.today()
+    Event.objects.filter(end_date__lt=today).exclude(status='time out').update(status='time out')
+
+@login_required(login_url='login')
+def expired_event_list(request):
+    # Update statuses before listing
+    update_expired_events_status()
+
+    today = date.today()
+    events = Event.objects.filter(end_date__lt=today)
+
+    return render(request, 'events/expired_event_list.html', {
+        'events': events
+    })
+
+
+
+@login_required(login_url='login')
+def dashboard(request):
+    update_expired_events_status()
+
+    event_ctg = EventCategory.objects.count()
+    event = Event.objects.count()
+    user = User.objects.count()
+
+    complete_event = Event.objects.filter(end_date__lt=date.today()).count()
+
+    return render(request, 'dashboard.html', {
+        'event_ctg': event_ctg,
+        'event': event,
+        'user': user,
+        'complete_event': complete_event
+    })
 
 
 # Event category list view
@@ -279,9 +316,27 @@ class UserEventListView(ListView):
     context_object_name = 'events'
 
     def get_queryset(self):
-        qs = Event.objects.all()
-        print("DEBUG EVENTS:", qs.values('id', 'name', 'status', 'category_id'))
-        return qs
+        # No filtering now — we show all and group by category
+        return Event.objects.filter(status="active")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+
+        categories = EventCategory.objects.filter(status="active")
+
+        grouped = []
+        for cat in categories:
+            events = Event.objects.filter(category=cat, status="active")
+            if events.exists():
+                grouped.append({
+                    "category": cat,
+                    "events": events
+                })
+
+        ctx["grouped_events"] = grouped
+        return ctx
+
+
 
 
 # Public event detail view (no login required)

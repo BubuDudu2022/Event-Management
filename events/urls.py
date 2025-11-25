@@ -1,5 +1,5 @@
 from django.urls import path
-
+from . import views
 from .views import (
     EventCategoryListView,
     EventCategoryCreateView,
@@ -61,6 +61,7 @@ urlpatterns = [
     path('event/<int:pk>/join/', join_event_ajax, name='join-event-ajax'),
     path('event/<int:pk>/unjoin/', unjoin_event_ajax, name='unjoin-event-ajax'),
     path('history/', EventHistoryView.as_view(), name='event-history'),
-    path('complete-event-user/',EventMemberStatusListView.as_view(),name='complete-event-user')
+    path('complete-event-user/',EventMemberStatusListView.as_view(),name='complete-event-user'),
+    path('expired-events/', views.expired_event_list, name='expired-events'),
 
 ]
