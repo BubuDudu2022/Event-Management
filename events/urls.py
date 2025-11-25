@@ -52,7 +52,7 @@ urlpatterns = [
     path('complete-event/', CompleteEventList.as_view(), name='complete-event'),
     path('absense-user/', AbsenseUserList.as_view(), name='absense-user'),
     path('create-user-mark/', CreateUserMark.as_view(), name='create-user-mark'),
-    path('user-mark/', UserMarkList.as_view(), name='user-mark'),
+   
     path('search_category/', search_event_category, name='search-event-category'),
     path('search_event/', search_event, name='search-event'),
     path('create/', create_event, name='create'),

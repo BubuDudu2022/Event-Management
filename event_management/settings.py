@@ -86,8 +86,12 @@ WSGI_APPLICATION = 'event_management.wsgi.application'
 # Sqlite config 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'EventManagment',        # your DB name
+        'USER': 'postgres',        # default postgres user
+        'PASSWORD': 'nora',   # the password you set during installation
+        'HOST': '127.0.0.1',       # localhost
+        'PORT': '5432',            # default PostgreSQL port
     }
 }
 
@@ -121,7 +125,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
