@@ -1,0 +1,228 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Event Categories</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .event-card:hover {
+            transform: translateY(-6px);
+            transition: 0.4s ease;
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #2563eb, #1e3a8a);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+
+<!-- ================= TOP BAR ================= -->
+<div class="bg-white shadow-sm py-4">
+    <div class="mx-auto px-6 flex justify-between items-center">
+
+        <h2 class="text-2xl font-bold text-blue-700">Event Management</h2>
+
+        {% if user.is_authenticated %}
+        <div class="relative group">
+            <button class="flex items-center space-x-3 cursor-pointer">
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-lg">
+                    {{ user.first_name|default:user.username|first|upper }}
+                </div>
+                <span class="text-gray-800 font-medium">
+                    {{ user.first_name|default:user.username }}
+                </span>
+            </button>
+
+            <div class="absolute right-0 bg-white shadow-lg rounded-lg w-40 mt-2 opacity-0 
+                        group-hover:opacity-100 transition-all duration-200">
+                <a href="{% url 'event-history' %}" class="block px-4 py-2 hover:bg-gray-100">History</a>
+                <a href="{% url 'logout-ajax' %}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">Logout</a>
+            </div>
+        </div>
+        {% else %}
+        <button id="open-auth"
+                class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold shadow">
+            Login / Register
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ================= HERO ================= -->
+<div class="hero-bg text-white py-8 shadow-lg">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+        <h1 class="text-4xl font-extrabold tracking-wide">Event Categories</h1>
+        <p class="text-blue-100 mt-2 text-lg">Choose a category to explore events</p>
+    </div>
+</div>
+
+<!-- ================= CATEGORY CARDS ================= -->
+<div class="max-w-7xl mx-auto px-6 pt-10 pb-12">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for category in categories %}
+        <div class="bg-white shadow-md rounded-xl p-4 event-card hover:shadow-lg transition">
+
+            <img src="{{ category.image.url }}" class="h-48 w-full object-cover rounded-lg">
+
+            <h2 class="text-xl font-semibold mt-3">{{ category.name }}</h2>
+            <p class="text-gray-500 text-sm">Code: {{ category.code }}</p>
+
+            <a href="{% url 'user-events-by-category' category.id %}"
+               class="block mt-3 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition">
+                View Events →
+            </a>
+
+        </div>
+        {% empty %}
+        <p class="text-center text-gray-500 text-xl mt-10 col-span-3">No categories available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 py-6 mt-16 text-center text-gray-300">
+    © {{ now|date:"Y" }} Event Management · All Rights Reserved
+</footer>
+
+<!-- ================= LOGIN / REGISTER MODAL ================= -->
+<div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl w-96 p-6 shadow-xl relative">
+        <button id="auth-close" class="absolute right-4 top-4 text-gray-600 hover:text-black">✖</button>
+
+        <h3 class="text-2xl font-bold mb-4 text-center">Login / Register</h3>
+
+        <div class="flex mb-4 border-b">
+            <button type="button"
+                    class="auth-tab flex-1 py-2 active border-b-2 border-indigo-600 text-indigo-600 font-semibold"
+                    data-target="#login-form">Login</button>
+            <button type="button"
+                    class="auth-tab flex-1 py-2 text-gray-500"
+                    data-target="#register-form">Register</button>
+        </div>
+
+        <div id="auth-forms">
+            <!-- LOGIN FORM -->
+            <form id="login-form" method="post">
+                {% csrf_token %}
+                <input name="username" placeholder="Email / Username"
+                       class="w-full p-3 mb-3 border rounded-lg" required />
+                <input name="password" type="password" placeholder="Password"
+                       class="w-full p-3 mb-3 border rounded-lg" required />
+
+                <button type="submit"
+                        class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
+                    Login
+                </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="register-form" method="post" style="display:none;">
+                {% csrf_token %}
+                <input name="name" placeholder="Full Name"
+                       class="w-full p-3 mb-3 border rounded-lg" required />
+                <input name="email" type="email" placeholder="Email"
+                       class="w-full p-3 mb-3 border rounded-lg" required />
+                <input name="password1" type="password" placeholder="Password"
+                       class="w-full p-3 mb-3 border rounded-lg" required />
+                <input name="password2" type="password" placeholder="Confirm Password"
+                       class="w-full p-3 mb-3 border rounded-lg" required />
+
+                <button type="submit"
+                        class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold">
+                    Register
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ================= JAVASCRIPT ================= -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const authModal = document.getElementById("auth-modal");
+    const openAuthBtn = document.getElementById("open-auth");
+    const authClose = document.getElementById("auth-close");
+    const authTabs = document.querySelectorAll(".auth-tab");
+
+    function openAuthModal() {
+        authModal.classList.remove("hidden");
+        authModal.style.display = "flex";
+    }
+
+    function closeAuthModal() {
+        authModal.classList.add("hidden");
+        authModal.style.display = "none";
+    }
+
+    if (openAuthBtn) {
+        openAuthBtn.addEventListener("click", openAuthModal);
+    }
+
+    authClose.addEventListener("click", closeAuthModal);
+
+    // Tab Switch
+    authTabs.forEach(tab => {
+        tab.addEventListener("click", function () {
+            authTabs.forEach(t => t.classList.remove("border-indigo-600", "text-indigo-600"));
+            tab.classList.add("border-indigo-600", "text-indigo-600");
+
+            document.querySelectorAll("#auth-forms form").forEach(f => f.style.display = "none");
+            document.querySelector(tab.dataset.target).style.display = "block";
+        });
+    });
+
+    // AJAX LOGIN
+    document.getElementById("login-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const form = new FormData(this);
+
+        const response = await fetch("{% url 'login-ajax' %}", {
+            method: "POST",
+            body: form,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+            closeAuthModal();
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+
+    // AJAX REGISTER
+    document.getElementById("register-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const form = new FormData(this);
+
+        const response = await fetch("{% url 'register' %}", {
+            method: "POST",
+            body: form,
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+
+        const data = await response.json();
+
+        if (data.status === "success") {
+            closeAuthModal();
+            window.location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>

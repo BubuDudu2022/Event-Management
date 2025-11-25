@@ -11,7 +11,7 @@ urlpatterns = [
     # -------------------------
     # USER SIDE (FRONTEND)
     # -------------------------
-    path('', user_home, name='user_home'),          # This will show your user frontend
+    #path('', user_home, name='user_home'),          # This will show your user frontend
     path('login/', login_page, name='login'),
     path('logout/', logut_page, name='logout'),
 
@@ -21,7 +21,8 @@ urlpatterns = [
     path('admin-panel/', dashboard, name='dashboard'),   # Admin dashboard moved here
 
     # events urls
-    path('events/', include('events.urls')),
+    #path('events/', include('events.urls')),
+    path('', include('events.urls')),
 
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('user/login/', ajax_login, name='login-ajax'),

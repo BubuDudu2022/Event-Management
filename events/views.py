@@ -31,6 +31,32 @@ def update_expired_events_status():
     today = date.today()
     Event.objects.filter(end_date__lt=today).exclude(status='time out').update(status='time out')
 
+
+
+
+
+class UserCategoryListView(ListView):
+    model = EventCategory
+    template_name = "events/user_category_list.html"
+    context_object_name = "categories"
+
+    def get_queryset(self):
+        return EventCategory.objects.filter(status="active").order_by("priority")
+    
+
+class UserEventListByCategoryView(ListView):
+    model = Event
+    template_name = "events/user_event_list_by_category.html"
+    context_object_name = "events"
+
+    def get_queryset(self):
+        category_id = self.kwargs["category_id"]
+        return Event.objects.filter(
+            category_id=category_id,
+            status="active"
+        ).order_by("start_date")
+
+
 @login_required(login_url='login')
 def expired_event_list(request):
     # Update statuses before listing

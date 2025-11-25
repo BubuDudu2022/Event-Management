@@ -20,7 +20,7 @@ def register_page(request):
 
 def user_logout(request):
     logout(request)
-    return redirect("user-event-list") 
+    return redirect("user-category-list") 
 
 def ajax_login(request):
     if request.method == "POST":

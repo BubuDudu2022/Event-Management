@@ -29,7 +29,10 @@ from .views import (
     join_event_ajax, 
     unjoin_event_ajax,
     EventHistoryView,
-    EventMemberStatusListView
+    EventMemberStatusListView,
+    UserCategoryListView,
+    UserEventListByCategoryView,
+    UserEventDetailView
 )
 
 urlpatterns = [
@@ -56,12 +59,14 @@ urlpatterns = [
     path('search_category/', search_event_category, name='search-event-category'),
     path('search_event/', search_event, name='search-event'),
     path('create/', create_event, name='create'),
-    path('', UserEventListView.as_view(), name='user-event-list'),
-    path('event/<int:pk>/', UserEventDetailView.as_view(), name='user-event-detail'),
+    #path('', UserEventListView.as_view(), name='user-event-list'),
+    path('', UserCategoryListView.as_view(), name='user-category-list'),
     path('event/<int:pk>/join/', join_event_ajax, name='join-event-ajax'),
     path('event/<int:pk>/unjoin/', unjoin_event_ajax, name='unjoin-event-ajax'),
     path('history/', EventHistoryView.as_view(), name='event-history'),
     path('complete-event-user/',EventMemberStatusListView.as_view(),name='complete-event-user'),
     path('expired-events/', views.expired_event_list, name='expired-events'),
-
+   # path("categories/", UserCategoryListView.as_view(), name="user-category-list"),
+    path("category/<int:category_id>/events/", UserEventListByCategoryView.as_view(), name="user-events-by-category"),
+    path("event/<int:pk>/detail/", UserEventDetailView.as_view(), name="user-event-detail"),
 ]
