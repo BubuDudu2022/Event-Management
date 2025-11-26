@@ -29,9 +29,7 @@ from datetime import date
 
 def update_expired_events_status():
     today = date.today()
-    Event.objects.filter(end_date__lt=today).exclude(status='time out').update(status='time out')
-
-
+    Event.objects.filter(end_date__lt=today).exclude(status='completed').update(status='completed')
 
 
 
@@ -63,7 +61,7 @@ def expired_event_list(request):
     update_expired_events_status()
 
     today = date.today()
-    events = Event.objects.filter(end_date__lt=today)
+    events = Event.objects.filter(status='completed')
 
     return render(request, 'events/expired_event_list.html', {
         'events': events
@@ -73,20 +71,26 @@ def expired_event_list(request):
 
 @login_required(login_url='login')
 def dashboard(request):
-    update_expired_events_status()
-
+    # counts
     event_ctg = EventCategory.objects.count()
     event = Event.objects.count()
-    user = User.objects.count()
+    user_count = User.objects.count()
 
-    complete_event = Event.objects.filter(end_date__lt=date.today()).count()
+    # expired events (based on date)
+    today = timezone.now().date()
+    complete_event = Event.objects.filter(end_date__lt=today).count()
 
-    return render(request, 'dashboard.html', {
+    # event list table
+    events = Event.objects.all().order_by('-id')
+
+    context = {
         'event_ctg': event_ctg,
         'event': event,
-        'user': user,
-        'complete_event': complete_event
-    })
+        'user': user_count,
+        'complete_event': complete_event,
+        'events': events
+    }
+    return render(request, 'dashboard.html', context)
 
 
 # Event category list view
